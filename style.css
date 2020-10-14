@@ -1,0 +1,12 @@
+body{
+    height: 300px;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(216, 216, 216);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+}

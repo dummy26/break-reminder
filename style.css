@@ -1,12 +1,57 @@
-body{
-    height: 300px;
+*{
     margin: 0;
     padding: 0;
-    background-color: rgb(216, 216, 216);
+}
+
+h1{
+    text-align: center;
+    margin-top: 10px;
+}
+
+body{
+    height: 280px;
+    background-color: transparent;
+    transition: opacity 0.5s ease;
+    opacity: 0;
+    overflow-y: hidden;
+}
+
+main{
+    height: 90%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-around;
-    transition: opacity 0.5s ease;
-    opacity: 0;
+    justify-content: space-evenly;
+}
+
+.progressDiv{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.progressBarDiv {
+  margin: 0 auto;
+  width: 90%;
+  background-color: grey;
+}
+
+#bar {
+  width: 0%;
+  height: 10px;
+  background-color: rgb(7, 212, 7);
+}
+
+.controls{
+    margin: 0 auto;
+    width: 90%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.controls button{
+    width: 80px;
+    height: 30px;
 }

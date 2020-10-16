@@ -1,22 +1,23 @@
-const { BrowserWindow } = require('electron').remote
-const win = BrowserWindow.getAllWindows()[0]
+const electron = require('electron')
+const { remote, ipcRenderer } = electron
+const win = remote.getCurrentWindow()
 
 const body = document.body
-const bar = document.querySelector('#bar');
+const bar = document.querySelector('#bar')
 const timeLeft = document.querySelector('.timeLeft')
 const stopBtn = document.querySelector('#stopBtn')
 const postponeBtn = document.querySelector('#postponeBtn')
 
 //time period of break
-const breakTime = 5000
+let breakTime = 5000
 //time between two reminders
-const repeatInterval = 10000
+let repeatInterval = 6000
 //postponeTime has to be atleast equal to breakTime so that call to toggleDisplay finishes
-const postponeTime = breakTime
+let postponeTime = breakTime
 //ms after which progress bar will be updated
 const incrementPeriod = 50
 //value by which progress bar width will be incremented
-const incrementValue = breakTime / incrementPeriod / 100
+let incrementValue = incrementPeriod / breakTime * 100
 
 let toggleDisplayId
 
@@ -25,6 +26,21 @@ timeLeft.innerHTML = (breakTime / 1000) + 's'
 win.setIgnoreMouseEvents(true)
 
 stopBtn.addEventListener('click', hide)
+
+ipcRenderer.on('settings', (e, data) => {
+    //data['microRepeatInterval'] is in minutes so multiply by 60
+    repeatInterval = data['microRepeatInterval'] * 1000 // *60
+    breakTime = data['microBreakTime'] * 1000
+    incrementValue = incrementPeriod / breakTime * 100
+    postponeTime = breakTime
+
+    clearInterval(toggleDisplayId)
+
+    setTimeout(() => {
+        toggleDisplay()
+        toggleDisplayId = setInterval(toggleDisplay, repeatInterval + breakTime)
+    }, repeatInterval)
+})
 
 /*
 first hide
@@ -66,7 +82,7 @@ function toggleDisplay() {
         if (width >= 100) {
             clearInterval(id)
         } else {
-            width += incrementValue;
+            width += incrementValue
             bar.style.width = width + "%"
         }
 

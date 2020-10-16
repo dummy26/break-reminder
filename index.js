@@ -1,14 +1,16 @@
-const { app, BrowserWindow, Menu, Tray } = require('electron')
+const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron')
 
+let mainWindow, settingsWindow
 function createWindow() {
     // Create the browser window.
-    const mainWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width: 350,
         height: 280,
         frame: false,
         transparent: true,
         alwaysOnTop: true,
         resizable: false,
+        title: 'Break-Reminder',
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true
@@ -21,15 +23,40 @@ function createWindow() {
     // mainWindow.webContents.openDevTools()
 }
 
-let tray = null
+function createSettingsWindow() {
+    settingsWindow = new BrowserWindow({
+        width: 500,
+        height: 500,
+        title: 'Settings',
+        webPreferences: {
+            nodeIntegration: true,
+        }
+    })
+
+    settingsWindow.loadFile('settings.html')
+
+    settingsWindow.on('closed', () => { settingsWindow = null })
+
+}
+
+ipcMain.on('settings', (e, data) => {
+    mainWindow.webContents.send('settings', data)
+    settingsWindow.close()
+})
+
+let tray
 app.whenReady().then(() => {
     createWindow()
     tray = new Tray('./icon.png')
     const contextMenu = Menu.buildFromTemplate([
-        { label: 'Item1', type: 'radio' },
-        { label: 'Item2', type: 'radio', checked: true },
+        {
+            label: 'Settings',
+            click() {
+                createSettingsWindow()
+            }
+        }
     ])
-    tray.setToolTip('This is my application.')
+    tray.setToolTip('Break-Reminder')
     tray.setContextMenu(contextMenu)
 
     app.on('activate', function () {

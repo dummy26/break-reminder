@@ -1,6 +1,21 @@
 const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron')
 
+const Store = require('./store.js');
+
 let mainWindow, settingsWindow
+
+const settingsStore = new Store({
+    configName: 'user-preferences',
+    defaults: {
+        microRepeatInterval: 10,
+        microBreakTime: 10,
+        normalRepeatInterval: 30,
+        normalBreakTime: 60
+    }
+})
+
+global.settingsStore = settingsStore
+
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
@@ -30,6 +45,7 @@ function createSettingsWindow() {
         title: 'Settings',
         webPreferences: {
             nodeIntegration: true,
+            enableRemoteModule: true
         }
     })
 
@@ -41,6 +57,9 @@ function createSettingsWindow() {
 
 ipcMain.on('settings', (e, data) => {
     mainWindow.webContents.send('settings', data)
+    for (const [key, value] of Object.entries(data)) {
+        settingsStore.set(key, value)
+    }
     settingsWindow.close()
 })
 

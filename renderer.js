@@ -7,11 +7,12 @@ const bar = document.querySelector('#bar')
 const timeLeft = document.querySelector('.timeLeft')
 const stopBtn = document.querySelector('#stopBtn')
 const postponeBtn = document.querySelector('#postponeBtn')
+const settingsStore = remote.getGlobal('settingsStore')
 
 //time period of break
-let breakTime = 5000
+let breakTime = settingsStore.get('microBreakTime') * 1000
 //time between two reminders
-let repeatInterval = 6000
+let repeatInterval = settingsStore.get('microRepeatInterval') * 1000 //*60
 //postponeTime has to be atleast equal to breakTime so that call to toggleDisplay finishes
 let postponeTime = breakTime
 //ms after which progress bar will be updated

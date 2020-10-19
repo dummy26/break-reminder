@@ -9,6 +9,16 @@ const stopBtn = document.querySelector('#stopBtn')
 const postponeBtn = document.querySelector('#postponeBtn')
 const settingsStore = remote.getGlobal('settingsStore')
 
+const sound = new Audio('./assets/audio/1.mp3')
+
+function playSound() {
+    if (sound.paused) sound.play()
+    setTimeout(() => {
+        sound.pause()
+        sound.currentTime = 0
+    }, breakTime)
+}
+
 //time period of break
 let breakTime = settingsStore.get('microBreakTime') * 1000
 //time between two reminders
@@ -60,14 +70,13 @@ postponeBtn.addEventListener('click', () => {
 
 function hide() {
     body.style.opacity = 0
-    body.style.background = 'transparent'
     win.setIgnoreMouseEvents(true)
 }
 
 function toggleDisplay() {
+    playSound()
 
     body.style.opacity = 1
-    body.style.background = 'rgb(216, 216, 216)'
     win.setIgnoreMouseEvents(false)
 
     let i = 0

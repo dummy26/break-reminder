@@ -1,6 +1,6 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron')
-
-const Store = require('./store.js');
+const { app, BrowserWindow, ipcMain } = require('electron')
+const myTray = require('./utils/myTray')
+const Store = require('./utils/store.js');
 
 let mainWindow, settingsWindow
 
@@ -26,13 +26,14 @@ function createWindow() {
         alwaysOnTop: true,
         resizable: false,
         title: 'Break-Reminder',
+        skipTaskbar: true,
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true
         }
     })
 
-    mainWindow.loadFile('index.html')
+    mainWindow.loadFile(`${__dirname}/index.html`)
 
     // Open the DevTools.
     // mainWindow.webContents.openDevTools()
@@ -49,7 +50,7 @@ function createSettingsWindow() {
         }
     })
 
-    settingsWindow.loadFile('settings.html')
+    settingsWindow.loadFile(`${__dirname}/settings.html`)
 
     settingsWindow.on('closed', () => { settingsWindow = null })
 
@@ -66,17 +67,7 @@ ipcMain.on('settings', (e, data) => {
 let tray
 app.whenReady().then(() => {
     createWindow()
-    tray = new Tray('./icon.png')
-    const contextMenu = Menu.buildFromTemplate([
-        {
-            label: 'Settings',
-            click() {
-                createSettingsWindow()
-            }
-        }
-    ])
-    tray.setToolTip('Break-Reminder')
-    tray.setContextMenu(contextMenu)
+    tray = new myTray(`${__dirname}/assets/images/icon.png`, createSettingsWindow)
 
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()

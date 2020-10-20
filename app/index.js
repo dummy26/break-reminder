@@ -36,7 +36,7 @@ function createWindow() {
     mainWindow.loadFile(`${__dirname}/index.html`)
 
     // Open the DevTools.
-    // mainWindow.webContents.openDevTools()
+    mainWindow.webContents.openDevTools()
 }
 
 function createSettingsWindow() {

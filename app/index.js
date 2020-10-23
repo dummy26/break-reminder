@@ -8,9 +8,10 @@ const settingsStore = new Store({
     configName: 'user-preferences',
     defaults: {
         microRepeatInterval: 10,
-        microBreakTime: 10,
+        microBreakTime: 20,
         normalRepeatInterval: 30,
-        normalBreakTime: 60
+        normalBreakTime: 60,
+        launchOnStartup: true
     }
 })
 
@@ -36,7 +37,7 @@ function createWindow() {
     mainWindow.loadFile(`${__dirname}/index.html`)
 
     // Open the DevTools.
-    mainWindow.webContents.openDevTools()
+    // mainWindow.webContents.openDevTools()
 }
 
 function createSettingsWindow() {
@@ -62,6 +63,10 @@ ipcMain.on('settings', (e, data) => {
         settingsStore.set(key, value)
     }
     settingsWindow.close()
+})
+
+app.setLoginItemSettings({
+    openAtLogin: settingsStore.get('launchOnStartup')
 })
 
 let tray

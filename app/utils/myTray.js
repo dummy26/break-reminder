@@ -10,6 +10,10 @@ class myTray extends Tray {
                 click() {
                     createSettingsWindow()
                 }
+            },
+            {
+                label: 'Exit',
+                role: 'quit'
             }
         ])
 

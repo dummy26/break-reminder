@@ -3,7 +3,7 @@ const { remote, ipcRenderer } = electron
 const win = remote.getCurrentWindow()
 
 const body = document.body
-const heading = document.querySelector('.heading h1')
+const heading = document.querySelector('.heading h2')
 const bar = document.querySelector('#bar')
 const timeLeft = document.querySelector('.timeLeft')
 const stopBtn = document.querySelector('#stopBtn')
@@ -104,7 +104,7 @@ function toggleDisplay(breakObj) {
         if (width >= 100) clearInterval(id)
         else {
             width += incrementValue
-            bar.style.width = width + "%"
+            bar.value = width
         }
 
         i += incrementPeriod

@@ -20,8 +20,8 @@ global.settingsStore = settingsStore
 function createWindow() {
     // Create the browser window.
     mainWindow = new BrowserWindow({
-        width: 350,
-        height: 280,
+        width: 280,
+        height: 200,
         frame: false,
         transparent: true,
         alwaysOnTop: true,

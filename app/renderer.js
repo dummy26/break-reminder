@@ -88,8 +88,6 @@ function toggleDisplay(breakObj) {
     }
     else heading.innerHTML = 'Normal Break'
 
-    playSound()
-
     body.style.opacity = 1
     win.setIgnoreMouseEvents(false)
 
@@ -112,6 +110,7 @@ function toggleDisplay(breakObj) {
         i += incrementPeriod
     }
 
+    setTimeout(playSound, breakTime - 500)
     setTimeout(hide, breakTime)
 }
 

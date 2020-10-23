@@ -5,8 +5,9 @@
 
 .main{
     width: 90%;
-    height: 70vh;
+    height: 80vh;
     margin: 0 auto;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -36,4 +37,11 @@
 
 .heading{
     align-self: flex-start;
+}
+
+.launchOnStartup{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

@@ -17,7 +17,7 @@ const incrementPeriod = 50
 //time period of break
 let microBreakTime = settingsStore.get('microBreakTime') * 1000
 //time between two reminders
-let microRepeatInterval = settingsStore.get('microRepeatInterval') * 1000 //*60
+let microRepeatInterval = settingsStore.get('microRepeatInterval') * 1000 * 60
 //postponeTime has to be atleast equal to BreakTime so that call to toggleDisplay finishes
 let microPostponeTime = microBreakTime
 //value by which progress bar width will be incremented
@@ -27,7 +27,7 @@ const microBreak = { name: 'micro', breakTime: microBreakTime, repeatInterval: m
 
 
 let normalBreakTime = settingsStore.get('normalBreakTime') * 1000
-let normalRepeatInterval = settingsStore.get('normalRepeatInterval') * 1000 //*60
+let normalRepeatInterval = settingsStore.get('normalRepeatInterval') * 1000 * 60
 let normalPostponeTime = normalBreakTime
 let normalIncrementValue = incrementPeriod / normalBreakTime * 100
 

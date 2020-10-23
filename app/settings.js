@@ -13,15 +13,21 @@ normalRepeatInterval.value = settingsStore.get('normalRepeatInterval')
 const microBreakTime = document.querySelector(('input[ name="microBreakTime"]'))
 const normalBreakTime = document.querySelector(('input[ name="normalBreakTime"]'))
 
+const launchOnStartup = document.querySelector(('input[ name="launchOnStartup"]'))
+
 microBreakTime.value = settingsStore.get('microBreakTime')
 normalBreakTime.value = settingsStore.get('normalBreakTime')
+launchOnStartup.checked = settingsStore.get('launchOnStartup')
 
 const saveBtn = document.querySelector('#saveBtn')
 
 saveBtn.addEventListener('click', () => {
     ipcRenderer.send('settings',
         {
-            'microRepeatInterval': Number(microRepeatInterval.value), 'normalRepeatInterval': Number(normalRepeatInterval.value),
-            'microBreakTime': Number(microBreakTime.value), 'normalBreakTime': Number(normalBreakTime.value)
+            'microRepeatInterval': Number(microRepeatInterval.value),
+            'microBreakTime': Number(microBreakTime.value),
+            'normalRepeatInterval': Number(normalRepeatInterval.value),
+            'normalBreakTime': Number(normalBreakTime.value),
+            'launchOnStartup': launchOnStartup.checked
         })
 })

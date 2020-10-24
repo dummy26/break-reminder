@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, globalShortcut } = require('electron')
 const myTray = require('./utils/myTray')
 const Store = require('./utils/store.js');
 
@@ -77,6 +77,8 @@ app.whenReady().then(() => {
     app.on('activate', function () {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+
+    const ret = globalShortcut.register('Control+Alt+S', () => { mainWindow.webContents.send('stop-break') })
 })
 
 app.on('window-all-closed', function () {

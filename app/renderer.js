@@ -33,11 +33,16 @@ let normalIncrementValue = incrementPeriod / normalBreakTime * 100
 
 const normalBreak = { name: 'normal', breakTime: normalBreakTime, repeatInterval: normalRepeatInterval, postponeTime: normalPostponeTime, incrementValue: normalIncrementValue }
 
-let microSetIntervalId, normalSetIntervalId
+let microSetIntervalId, normalSetIntervalId, playSoundTimeoutId
 
 win.setIgnoreMouseEvents(true)
 
-stopBtn.addEventListener('click', hide)
+stopBtn.addEventListener('click', () => {
+    hide()
+    clearTimeout(playSoundTimeoutId)
+})
+
+ipcRenderer.on('stop-break', () => { stopBtn.click() })
 
 // ipcRenderer.on('settings', (e, data) => {
 //     //data['microRepeatInterval'] is in minutes so multiply by 60
@@ -110,10 +115,9 @@ function toggleDisplay(breakObj) {
         i += incrementPeriod
     }
 
-    setTimeout(playSound, breakTime - 500)
+    playSoundTimeoutId = setTimeout(playSound, breakTime - 300)
     setTimeout(hide, breakTime)
 }
-
 
 setMicroInterval()
 setNormalInterval()

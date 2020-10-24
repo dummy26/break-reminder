@@ -63,26 +63,31 @@ ipcMain.on('settings', (e, data) => {
         settingsStore.set(key, value)
     }
     settingsWindow.close()
+    setLaunchOnStartup()
 })
 
-app.setLoginItemSettings({
-    openAtLogin: settingsStore.get('launchOnStartup')
-})
+setLaunchOnStartup()
 
 let tray
 app.whenReady().then(() => {
     createWindow()
     tray = new myTray(`${__dirname}/assets/images/icon.png`, createSettingsWindow)
 
-    app.on('activate', function () {
+    app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
 
     globalShortcut.register('Control+Alt+S', () => { mainWindow.webContents.send('stop-break') })
 })
 
-app.on('window-all-closed', function () {
+app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
 })
 
 app.on('will-quit', () => { globalShortcut.unregisterAll() })
+
+function setLaunchOnStartup() {
+    app.setLoginItemSettings({
+        openAtLogin: settingsStore.get('launchOnStartup')
+    })
+}

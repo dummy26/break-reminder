@@ -78,9 +78,11 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
 
-    const ret = globalShortcut.register('Control+Alt+S', () => { mainWindow.webContents.send('stop-break') })
+    globalShortcut.register('Control+Alt+S', () => { mainWindow.webContents.send('stop-break') })
 })
 
 app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') app.quit()
 })
+
+app.on('will-quit', () => { globalShortcut.unregisterAll() })

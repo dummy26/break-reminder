@@ -71,7 +71,7 @@ setLaunchOnStartup()
 let tray
 app.whenReady().then(() => {
     createWindow()
-    tray = new myTray(`${__dirname}/assets/images/icon.png`, createSettingsWindow)
+    tray = new myTray(`${__dirname}/assets/images/icon.png`, createSettingsWindow, mainWindow)
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow()

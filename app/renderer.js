@@ -44,6 +44,18 @@ stopBtn.addEventListener('click', () => {
 
 ipcRenderer.on('stop-break', () => { stopBtn.click() })
 
+ipcRenderer.on('pause-breaks', (e, value) => {
+    if (value) {
+        clearInterval(microSetIntervalId)
+        clearInterval(normalSetIntervalId)
+    }
+    else {
+        setMicroInterval()
+        setNormalInterval()
+    }
+})
+
+
 // ipcRenderer.on('settings', (e, data) => {
 //     //data['microRepeatInterval'] is in minutes so multiply by 60
 //     repeatInterval = data['microRepeatInterval'] * 1000 // *60

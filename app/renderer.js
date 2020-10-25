@@ -23,15 +23,14 @@ let microPostponeTime = microBreakTime
 //value by which progress bar width will be incremented
 let microIncrementValue = incrementPeriod / microBreakTime * 100
 
-const microBreak = { name: 'micro', breakTime: microBreakTime, repeatInterval: microRepeatInterval, postponeTime: microPostponeTime, incrementValue: microIncrementValue }
-
+let microBreak = getMicroBreakObject()
 
 let normalBreakTime = settingsStore.get('normalBreakTime') * 1000
 let normalRepeatInterval = settingsStore.get('normalRepeatInterval') * 1000 * 60
 let normalPostponeTime = normalBreakTime
 let normalIncrementValue = incrementPeriod / normalBreakTime * 100
 
-const normalBreak = { name: 'normal', breakTime: normalBreakTime, repeatInterval: normalRepeatInterval, postponeTime: normalPostponeTime, incrementValue: normalIncrementValue }
+let normalBreak = getNormalBreakObject()
 
 let microSetIntervalId, normalSetIntervalId, playSoundTimeoutId
 
@@ -56,20 +55,25 @@ ipcRenderer.on('pause-breaks', (e, value) => {
 })
 
 
-// ipcRenderer.on('settings', (e, data) => {
-//     //data['microRepeatInterval'] is in minutes so multiply by 60
-//     repeatInterval = data['microRepeatInterval'] * 1000 // *60
-//     breakTime = data['microBreakTime'] * 1000
-//     incrementValue = incrementPeriod / breakTime * 100
-//     postponeTime = breakTime
+ipcRenderer.on('settings', (e, data) => {
+    microRepeatInterval = data['microRepeatInterval'] * 1000 * 60
+    microBreakTime = data['microBreakTime'] * 1000
+    microIncrementValue = incrementPeriod / microBreakTime * 100
+    microPostponeTime = microBreakTime
+    microBreak = getMicroBreakObject()
 
-//     clearInterval(toggleDisplayId)
+    clearInterval(microSetIntervalId)
+    setMicroInterval()
 
-//     setTimeout(() => {
-//         toggleDisplay()
-//         toggleDisplayId = setInterval(toggleDisplay, repeatInterval + breakTime)
-//     }, repeatInterval)
-// })
+    normalRepeatInterval = data['normalRepeatInterval'] * 1000 * 60
+    normalBreakTime = data['normalBreakTime'] * 1000
+    normalIncrementValue = incrementPeriod / normalBreakTime * 100
+    normalPostponeTime = normalBreakTime
+    normalBreak = getNormalBreakObject()
+
+    clearInterval(normalSetIntervalId)
+    setNormalInterval()
+})
 
 /*
 first hide
@@ -144,6 +148,14 @@ function hide() {
     win.setIgnoreMouseEvents(true)
     audio.pause()
     audio.currentTime = 0
+}
+
+function getMicroBreakObject() {
+    return { name: 'micro', breakTime: microBreakTime, repeatInterval: microRepeatInterval, postponeTime: microPostponeTime, incrementValue: microIncrementValue }
+}
+
+function getNormalBreakObject() {
+    return { name: 'normal', breakTime: normalBreakTime, repeatInterval: normalRepeatInterval, postponeTime: normalPostponeTime, incrementValue: normalIncrementValue }
 }
 
 function setMicroInterval() {

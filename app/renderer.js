@@ -1,5 +1,7 @@
 const electron = require('electron')
 const { remote, ipcRenderer } = electron
+const Break = require('./utils/break.js')
+
 const win = remote.getCurrentWindow()
 
 const body = document.body
@@ -10,69 +12,58 @@ const stopBtn = document.querySelector('#stopBtn')
 const postponeBtn = document.querySelector('#postponeBtn')
 const settingsStore = remote.getGlobal('settingsStore')
 
-const audio = new Audio('./assets/audio/1.mp3')
-
 const incrementPeriod = 50
 
-//time period of break
-let microBreakTime = settingsStore.get('microBreakTime') * 1000
-//time between two reminders
-let microRepeatInterval = settingsStore.get('microRepeatInterval') * 1000 * 60
-//postponeTime has to be atleast equal to BreakTime so that call to toggleDisplay finishes
-let microPostponeTime = microBreakTime
-//value by which progress bar width will be incremented
-let microIncrementValue = incrementPeriod / microBreakTime * 100
+let breakTime = settingsStore.get('microBreakTime') * 1000
+let repeatInterval = settingsStore.get('microRepeatInterval') * 1000 * 60
+let postponeTime = breakTime
+let microBreak = new Break('micro', breakTime, repeatInterval, postponeTime, incrementPeriod)
 
-let microBreak = getMicroBreakObject()
-
-let normalBreakTime = settingsStore.get('normalBreakTime') * 1000
-let normalRepeatInterval = settingsStore.get('normalRepeatInterval') * 1000 * 60
-let normalPostponeTime = normalBreakTime
-let normalIncrementValue = incrementPeriod / normalBreakTime * 100
-
-let normalBreak = getNormalBreakObject()
-
-let microSetIntervalId, normalSetIntervalId, playSoundTimeoutId
+breakTime = settingsStore.get('normalBreakTime') * 1000
+repeatInterval = settingsStore.get('normalRepeatInterval') * 1000 * 60
+postponeTime = breakTime
+let normalBreak = new Break('normal', breakTime, repeatInterval, postponeTime, incrementPeriod)
 
 win.setIgnoreMouseEvents(true)
 
 stopBtn.addEventListener('click', () => {
-    hide()
-    clearTimeout(playSoundTimeoutId)
+    //TODO - figure out which one to run (Can figure out using heading.html)
+    microBreak.hide(body)
+    normalBreak.hide(body)
+
+    microBreak.clearAudioTimer()
+    normalBreak.clearAudioTimer()
 })
 
 ipcRenderer.on('stop-break', () => { stopBtn.click() })
 
 ipcRenderer.on('pause-breaks', (e, value) => {
     if (value) {
-        clearInterval(microSetIntervalId)
-        clearInterval(normalSetIntervalId)
+        microBreak.stop()
+        normalBreak.stop()
     }
     else {
-        setMicroInterval()
-        setNormalInterval()
+        microBreak.start()
+        normalBreak.start()
     }
 })
 
-
 ipcRenderer.on('settings', (e, data) => {
-    microRepeatInterval = data['microRepeatInterval'] * 1000 * 60
-    microBreakTime = data['microBreakTime'] * 1000
-    microIncrementValue = incrementPeriod / microBreakTime * 100
-    microPostponeTime = microBreakTime
-    microBreak = getMicroBreakObject()
+    microBreak.stop()
+    normalBreak.stop()
 
-    clearInterval(microSetIntervalId)
-    setMicroInterval()
+    repeatInterval = data['microRepeatInterval'] * 1000 * 60
+    breakTime = data['microBreakTime'] * 1000
+    postponeTime = breakTime
+    microBreak = new Break('micro', breakTime, repeatInterval, postponeTime, incrementPeriod)
 
-    normalRepeatInterval = data['normalRepeatInterval'] * 1000 * 60
-    normalBreakTime = data['normalBreakTime'] * 1000
-    normalIncrementValue = incrementPeriod / normalBreakTime * 100
-    normalPostponeTime = normalBreakTime
-    normalBreak = getNormalBreakObject()
+    repeatInterval = data['normalRepeatInterval'] * 1000 * 60
+    breakTime = data['normalBreakTime'] * 1000
+    postponeTime = breakTime
+    normalBreak = new Break('normal', breakTime, repeatInterval, postponeTime, incrementPeriod)
 
-    clearInterval(normalSetIntervalId)
-    setNormalInterval()
+    microBreak.start()
+    normalBreak.start()
 })
 
 /*
@@ -91,19 +82,19 @@ after postponeTime, show the reminder and set up new setInterval
 // })
 
 let t = 0
-let microCount = -microBreakTime
+let microCount = -microBreak.breakTime
 
-function toggleDisplay(breakObj) {
-    const { breakTime, incrementValue, name } = breakObj
+function toggleDisplay(Break) {
+    const { name, breakTime, incrementValue } = Break
 
     if (name == 'micro') {
-        microCount += microRepeatInterval + microBreakTime
+        microCount += microBreak.repeatInterval + microBreak.breakTime
 
-        if (microCount - (normalRepeatInterval + (normalRepeatInterval + normalBreakTime) * t) >
-            (normalRepeatInterval - microRepeatInterval))
+        if (microCount - (normalBreak.repeatInterval + (normalBreak.repeatInterval + normalBreak.breakTime) * t) >
+            (normalBreak.repeatInterval - microBreak.repeatInterval))
             t += 1
 
-        if (check_overlap(microCount) || check_overlap(microCount + microBreakTime)) return
+        if (check_overlap(microCount) || check_overlap(microCount + microBreak.breakTime)) return
 
         heading.innerHTML = 'Micro Break'
     }
@@ -131,49 +122,16 @@ function toggleDisplay(breakObj) {
         i += incrementPeriod
     }
 
-    playSoundTimeoutId = setTimeout(playSound, breakTime - 300)
-    setTimeout(hide, breakTime)
+    Break.setHideTimer(body)
+    Break.setAudioTimer()
 }
 
-setMicroInterval()
-setNormalInterval()
-
-
-function playSound() {
-    if (audio.paused) audio.play()
-}
-
-function hide() {
-    body.style.opacity = 0
-    win.setIgnoreMouseEvents(true)
-    audio.pause()
-    audio.currentTime = 0
-}
-
-function getMicroBreakObject() {
-    return { name: 'micro', breakTime: microBreakTime, repeatInterval: microRepeatInterval, postponeTime: microPostponeTime, incrementValue: microIncrementValue }
-}
-
-function getNormalBreakObject() {
-    return { name: 'normal', breakTime: normalBreakTime, repeatInterval: normalRepeatInterval, postponeTime: normalPostponeTime, incrementValue: normalIncrementValue }
-}
-
-function setMicroInterval() {
-    setTimeout(() => {
-        toggleDisplay(microBreak)
-        microSetIntervalId = setInterval(() => { toggleDisplay(microBreak) }, microRepeatInterval + microBreakTime)
-    }, microRepeatInterval)
-}
-
-function setNormalInterval() {
-    setTimeout(() => {
-        toggleDisplay(normalBreak)
-        normalSetIntervalId = setInterval(() => { toggleDisplay(normalBreak) }, normalRepeatInterval + normalBreakTime)
-    }, normalRepeatInterval)
-}
+microBreak.start()
+normalBreak.start()
 
 //check if time is equal to or in b/w start and end of normal break
 function check_overlap(time) {
-    return (time >= (normalRepeatInterval + (normalRepeatInterval + normalBreakTime) * t) &&
-        time <= normalRepeatInterval + (normalRepeatInterval + normalBreakTime) * t + normalBreakTime)
+    return (time >= (normalBreak.repeatInterval + (normalBreak.repeatInterval + normalBreak.breakTime) * t) &&
+        time <= normalBreak.repeatInterval + (normalBreak.repeatInterval + normalBreak.breakTime) * t +
+        normalBreak.breakTime)
 }
